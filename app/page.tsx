@@ -1,65 +1,164 @@
-import Image from "next/image";
+"use client";
+
+import { ModePicker } from "@/components/ModePicker";
+import { QuizCard } from "@/components/QuizCard";
+import { Feedback } from "@/components/Feedback";
+import { Results } from "@/components/Results";
+import {
+  deckFor,
+  type Level,
+  type Mode,
+  type Suburi,
+} from "@/lib/suburi";
+import { shuffle } from "@/lib/shuffle";
+import { pickOptions } from "@/lib/distractors";
+import { answersMatch } from "@/lib/normalize";
+import { useMemo, useState } from "react";
+
+type State =
+  | { kind: "picking" }
+  | {
+      kind: "playing";
+      level: Level;
+      mode: Mode;
+      deck: Suburi[];
+      index: number;
+      score: number;
+    }
+  | {
+      kind: "feedback";
+      level: Level;
+      mode: Mode;
+      deck: Suburi[];
+      index: number;
+      score: number;
+      userAnswer: string;
+      correct: boolean;
+    }
+  | {
+      kind: "done";
+      level: Level;
+      mode: Mode;
+      score: number;
+      total: number;
+    };
 
 export default function Home() {
+  const [state, setState] = useState<State>({ kind: "picking" });
+
+  const start = (level: Level, mode: Mode) => {
+    setState({
+      kind: "playing",
+      level,
+      mode,
+      deck: shuffle(deckFor(level)),
+      index: 0,
+      score: 0,
+    });
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="flex-1 flex items-center justify-center p-4 sm:p-8">
+      {state.kind === "picking" && <ModePicker onStart={start} />}
+      {state.kind === "playing" && <Playing state={state} setState={setState} />}
+      {state.kind === "feedback" && (
+        <FeedbackView state={state} setState={setState} />
+      )}
+      {state.kind === "done" && (
+        <Results
+          level={state.level}
+          mode={state.mode}
+          score={state.score}
+          total={state.total}
+          onAgain={() => start(state.level, state.mode)}
+          onChange={() => setState({ kind: "picking" })}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+    </main>
+  );
+}
+
+function Playing({
+  state,
+  setState,
+}: {
+  state: Extract<State, { kind: "playing" }>;
+  setState: (s: State) => void;
+}) {
+  const card = state.deck[state.index];
+  const fullPool = deckFor(state.level);
+
+  const options = useMemo(() => {
+    if (state.mode === "A") return pickOptions(card, fullPool, 3);
+    if (state.mode === "B") return pickOptions(card, fullPool, Math.min(fullPool.length, 10));
+    return [];
+  }, [card, fullPool, state.mode]);
+
+  const judge = (correct: boolean, userAnswer: string) => {
+    setState({
+      kind: "feedback",
+      level: state.level,
+      mode: state.mode,
+      deck: state.deck,
+      index: state.index,
+      score: state.score + (correct ? 1 : 0),
+      userAnswer,
+      correct,
+    });
+  };
+
+  return (
+    <QuizCard
+      level={state.level}
+      mode={state.mode}
+      card={card}
+      options={options}
+      index={state.index}
+      total={state.deck.length}
+      score={state.score}
+      onPick={(picked) => judge(picked.number === card.number, picked.nameJa)}
+      onType={(typed) => judge(answersMatch(typed, card.nameJa), typed)}
+    />
+  );
+}
+
+function FeedbackView({
+  state,
+  setState,
+}: {
+  state: Extract<State, { kind: "feedback" }>;
+  setState: (s: State) => void;
+}) {
+  const card = state.deck[state.index];
+  const isLast = state.index + 1 >= state.deck.length;
+  const next = () => {
+    if (isLast) {
+      setState({
+        kind: "done",
+        level: state.level,
+        mode: state.mode,
+        score: state.score,
+        total: state.deck.length,
+      });
+    } else {
+      setState({
+        kind: "playing",
+        level: state.level,
+        mode: state.mode,
+        deck: state.deck,
+        index: state.index + 1,
+        score: state.score,
+      });
+    }
+  };
+
+  return (
+    <Feedback
+      card={card}
+      userAnswer={state.userAnswer}
+      correct={state.correct}
+      isLast={isLast}
+      onNext={next}
+    />
   );
 }
