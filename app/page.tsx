@@ -5,9 +5,11 @@ import { QuizCard } from "@/components/QuizCard";
 import { Feedback } from "@/components/Feedback";
 import { Results } from "@/components/Results";
 import {
-  deckFor,
-  type Level,
+  SUBURI,
+  deckForSelection,
+  type Direction,
   type Mode,
+  type SeriesId,
   type Suburi,
 } from "@/lib/suburi";
 import { shuffle } from "@/lib/shuffle";
@@ -19,7 +21,8 @@ type State =
   | { kind: "picking" }
   | {
       kind: "playing";
-      level: Level;
+      selected: SeriesId[];
+      direction: Direction;
       mode: Mode;
       deck: Suburi[];
       index: number;
@@ -27,7 +30,8 @@ type State =
     }
   | {
       kind: "feedback";
-      level: Level;
+      selected: SeriesId[];
+      direction: Direction;
       mode: Mode;
       deck: Suburi[];
       index: number;
@@ -37,7 +41,8 @@ type State =
     }
   | {
       kind: "done";
-      level: Level;
+      selected: SeriesId[];
+      direction: Direction;
       mode: Mode;
       score: number;
       total: number;
@@ -46,12 +51,13 @@ type State =
 export default function Home() {
   const [state, setState] = useState<State>({ kind: "picking" });
 
-  const start = (level: Level, mode: Mode) => {
+  const start = (selected: SeriesId[], direction: Direction, mode: Mode) => {
     setState({
       kind: "playing",
-      level,
+      selected,
+      direction,
       mode,
-      deck: shuffle(deckFor(level)),
+      deck: shuffle(deckForSelection(selected)),
       index: 0,
       score: 0,
     });
@@ -66,11 +72,12 @@ export default function Home() {
       )}
       {state.kind === "done" && (
         <Results
-          level={state.level}
+          selected={state.selected}
+          direction={state.direction}
           mode={state.mode}
           score={state.score}
           total={state.total}
-          onAgain={() => start(state.level, state.mode)}
+          onAgain={() => start(state.selected, state.direction, state.mode)}
           onChange={() => setState({ kind: "picking" })}
         />
       )}
@@ -86,18 +93,18 @@ function Playing({
   setState: (s: State) => void;
 }) {
   const card = state.deck[state.index];
-  const fullPool = deckFor(state.level);
 
   const options = useMemo(() => {
-    if (state.mode === "A") return pickOptions(card, fullPool, 3);
-    if (state.mode === "B") return pickOptions(card, fullPool, Math.min(fullPool.length, 10));
+    if (state.mode === "A") return pickOptions(card, SUBURI, 3);
+    if (state.mode === "B") return pickOptions(card, SUBURI, 10);
     return [];
-  }, [card, fullPool, state.mode]);
+  }, [card, state.mode]);
 
   const judge = (correct: boolean, userAnswer: string) => {
     setState({
       kind: "feedback",
-      level: state.level,
+      selected: state.selected,
+      direction: state.direction,
       mode: state.mode,
       deck: state.deck,
       index: state.index,
@@ -107,17 +114,32 @@ function Playing({
     });
   };
 
+  const judgeTyped = (typed: string) => {
+    const target =
+      state.direction === "name" ? card.nameJa : card.numberJa;
+    judge(answersMatch(typed, target), typed);
+  };
+
+  const judgePicked = (picked: Suburi) => {
+    const userAnswer =
+      state.direction === "name"
+        ? picked.nameJa
+        : `${picked.numberJa} (${picked.number})`;
+    judge(picked.number === card.number, userAnswer);
+  };
+
   return (
     <QuizCard
-      level={state.level}
+      selected={state.selected}
+      direction={state.direction}
       mode={state.mode}
       card={card}
       options={options}
       index={state.index}
       total={state.deck.length}
       score={state.score}
-      onPick={(picked) => judge(picked.number === card.number, picked.nameJa)}
-      onType={(typed) => judge(answersMatch(typed, card.nameJa), typed)}
+      onPick={judgePicked}
+      onType={judgeTyped}
     />
   );
 }
@@ -135,7 +157,8 @@ function FeedbackView({
     if (isLast) {
       setState({
         kind: "done",
-        level: state.level,
+        selected: state.selected,
+        direction: state.direction,
         mode: state.mode,
         score: state.score,
         total: state.deck.length,
@@ -143,7 +166,8 @@ function FeedbackView({
     } else {
       setState({
         kind: "playing",
-        level: state.level,
+        selected: state.selected,
+        direction: state.direction,
         mode: state.mode,
         deck: state.deck,
         index: state.index + 1,

@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 type Props = {
+  placeholder: string;
   onSubmit: (typed: string) => void;
 };
 
-export function TypedAnswer({ onSubmit }: Props) {
+export function TypedAnswer({ placeholder, onSubmit }: Props) {
   const [value, setValue] = useState("");
 
   const submit = () => {
@@ -28,7 +29,7 @@ export function TypedAnswer({ onSubmit }: Props) {
         autoFocus
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="type the japanese name…"
+        placeholder={placeholder}
         autoComplete="off"
         autoCapitalize="none"
         autoCorrect="off"
