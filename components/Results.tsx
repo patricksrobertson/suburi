@@ -9,14 +9,14 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
-  LEVEL_LABEL,
   MODE_LABEL,
-  type Level,
+  describeSelection,
   type Mode,
+  type SeriesId,
 } from "@/lib/suburi";
 
 type Props = {
-  level: Level;
+  selected: SeriesId[];
   mode: Mode;
   score: number;
   total: number;
@@ -24,14 +24,21 @@ type Props = {
   onChange: () => void;
 };
 
-export function Results({ level, mode, score, total, onAgain, onChange }: Props) {
+export function Results({
+  selected,
+  mode,
+  score,
+  total,
+  onAgain,
+  onChange,
+}: Props) {
   const pct = total === 0 ? 0 : Math.round((score / total) * 100);
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle className="text-xl">Deck complete</CardTitle>
         <CardDescription>
-          {LEVEL_LABEL[level]} · {MODE_LABEL[mode]}
+          {describeSelection(selected)} · {MODE_LABEL[mode]}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
@@ -47,7 +54,7 @@ export function Results({ level, mode, score, total, onAgain, onChange }: Props)
             Study this deck again
           </Button>
           <Button size="lg" variant="outline" onClick={onChange}>
-            Change level or mode
+            Change series or mode
           </Button>
         </div>
       </CardContent>

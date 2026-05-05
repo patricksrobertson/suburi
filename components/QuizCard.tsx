@@ -8,17 +8,17 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
-  LEVEL_LABEL,
   MODE_LABEL,
-  type Level,
+  describeSelection,
   type Mode,
+  type SeriesId,
   type Suburi,
 } from "@/lib/suburi";
 import { ChoiceAnswer } from "./ChoiceAnswer";
 import { TypedAnswer } from "./TypedAnswer";
 
 type Props = {
-  level: Level;
+  selected: SeriesId[];
   mode: Mode;
   card: Suburi;
   options: readonly Suburi[];
@@ -30,7 +30,7 @@ type Props = {
 };
 
 export function QuizCard({
-  level,
+  selected,
   mode,
   card,
   options,
@@ -43,11 +43,11 @@ export function QuizCard({
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between text-base">
-          <span>
-            {LEVEL_LABEL[level]} · {MODE_LABEL[mode]}
+        <CardTitle className="flex items-center justify-between text-base gap-3">
+          <span className="truncate">
+            {describeSelection(selected)} · {MODE_LABEL[mode]}
           </span>
-          <span className="text-sm font-normal text-muted-foreground">
+          <span className="text-sm font-normal text-muted-foreground shrink-0">
             {index + 1} / {total} · {score} ✓
           </span>
         </CardTitle>
@@ -70,7 +70,7 @@ function prompt(mode: Mode): string {
     case "A":
       return "Pick the japanese name for this technique.";
     case "B":
-      return "Pick the japanese name from the full list.";
+      return "Pick the japanese name from the list of 10.";
     case "C":
       return "Type the japanese name in romaji.";
   }
