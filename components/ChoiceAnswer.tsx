@@ -1,14 +1,18 @@
 "use client";
 
-import type { Suburi } from "@/lib/suburi";
+type Identifiable = { number: number };
 
-type Props = {
-  options: readonly Suburi[];
-  label: (s: Suburi) => string;
-  onPick: (answer: Suburi) => void;
+type Props<T extends Identifiable> = {
+  options: readonly T[];
+  label: (s: T) => string;
+  onPick: (answer: T) => void;
 };
 
-export function ChoiceAnswer({ options, label, onPick }: Props) {
+export function ChoiceAnswer<T extends Identifiable>({
+  options,
+  label,
+  onPick,
+}: Props<T>) {
   return (
     <div className="flex flex-col gap-2">
       {options.map((opt) => (

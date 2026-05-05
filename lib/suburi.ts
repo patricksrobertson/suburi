@@ -100,6 +100,17 @@ const NUMBER_FORMS: Record<number, readonly string[]> = {
   18: ["ju hachi"],
   19: ["ju kyu", "ju ku"],
   20: ["ni ju"],
+  21: ["ni ju ichi"],
+  22: ["ni ju ni"],
+  23: ["ni ju san"],
+  24: ["ni ju shi", "ni ju yon"],
+  25: ["ni ju go"],
+  26: ["ni ju roku"],
+  27: ["ni ju shichi", "ni ju nana"],
+  28: ["ni ju hachi"],
+  29: ["ni ju kyu", "ni ju ku"],
+  30: ["san ju"],
+  31: ["san ju ichi"],
 };
 
 export function numberFormsFor(n: number): readonly string[] {

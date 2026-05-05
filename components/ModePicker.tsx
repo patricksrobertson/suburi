@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -145,6 +147,13 @@ export function ModePicker({ onStart }: Props) {
         >
           Start
         </Button>
+
+        <Link
+          href="/numbers"
+          className="text-center text-xs text-muted-foreground underline-offset-2 hover:underline"
+        >
+          Drilling counting only? Switch to numbers quiz →
+        </Link>
       </CardContent>
     </Card>
   );
