@@ -7,6 +7,7 @@ import { Results } from "@/components/Results";
 import {
   SUBURI,
   deckForSelection,
+  type Direction,
   type Mode,
   type SeriesId,
   type Suburi,
@@ -21,6 +22,7 @@ type State =
   | {
       kind: "playing";
       selected: SeriesId[];
+      direction: Direction;
       mode: Mode;
       deck: Suburi[];
       index: number;
@@ -29,6 +31,7 @@ type State =
   | {
       kind: "feedback";
       selected: SeriesId[];
+      direction: Direction;
       mode: Mode;
       deck: Suburi[];
       index: number;
@@ -39,6 +42,7 @@ type State =
   | {
       kind: "done";
       selected: SeriesId[];
+      direction: Direction;
       mode: Mode;
       score: number;
       total: number;
@@ -47,10 +51,11 @@ type State =
 export default function Home() {
   const [state, setState] = useState<State>({ kind: "picking" });
 
-  const start = (selected: SeriesId[], mode: Mode) => {
+  const start = (selected: SeriesId[], direction: Direction, mode: Mode) => {
     setState({
       kind: "playing",
       selected,
+      direction,
       mode,
       deck: shuffle(deckForSelection(selected)),
       index: 0,
@@ -68,10 +73,11 @@ export default function Home() {
       {state.kind === "done" && (
         <Results
           selected={state.selected}
+          direction={state.direction}
           mode={state.mode}
           score={state.score}
           total={state.total}
-          onAgain={() => start(state.selected, state.mode)}
+          onAgain={() => start(state.selected, state.direction, state.mode)}
           onChange={() => setState({ kind: "picking" })}
         />
       )}
@@ -98,6 +104,7 @@ function Playing({
     setState({
       kind: "feedback",
       selected: state.selected,
+      direction: state.direction,
       mode: state.mode,
       deck: state.deck,
       index: state.index,
@@ -107,17 +114,32 @@ function Playing({
     });
   };
 
+  const judgeTyped = (typed: string) => {
+    const target =
+      state.direction === "name" ? card.nameJa : card.numberJa;
+    judge(answersMatch(typed, target), typed);
+  };
+
+  const judgePicked = (picked: Suburi) => {
+    const userAnswer =
+      state.direction === "name"
+        ? picked.nameJa
+        : `${picked.numberJa} (${picked.number})`;
+    judge(picked.number === card.number, userAnswer);
+  };
+
   return (
     <QuizCard
       selected={state.selected}
+      direction={state.direction}
       mode={state.mode}
       card={card}
       options={options}
       index={state.index}
       total={state.deck.length}
       score={state.score}
-      onPick={(picked) => judge(picked.number === card.number, picked.nameJa)}
-      onType={(typed) => judge(answersMatch(typed, card.nameJa), typed)}
+      onPick={judgePicked}
+      onType={judgeTyped}
     />
   );
 }
@@ -136,6 +158,7 @@ function FeedbackView({
       setState({
         kind: "done",
         selected: state.selected,
+        direction: state.direction,
         mode: state.mode,
         score: state.score,
         total: state.deck.length,
@@ -144,6 +167,7 @@ function FeedbackView({
       setState({
         kind: "playing",
         selected: state.selected,
+        direction: state.direction,
         mode: state.mode,
         deck: state.deck,
         index: state.index + 1,

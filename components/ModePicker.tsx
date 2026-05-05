@@ -12,23 +12,27 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
+  DIRECTION_LABEL,
   MODE_LABEL,
   SERIES,
+  type Direction,
   type Mode,
   type SeriesId,
 } from "@/lib/suburi";
 import { useState } from "react";
 
 type Props = {
-  onStart: (selected: SeriesId[], mode: Mode) => void;
+  onStart: (selected: SeriesId[], direction: Direction, mode: Mode) => void;
 };
 
 const MODES: Mode[] = ["A", "B", "C"];
+const DIRECTIONS: Direction[] = ["name", "number"];
 
 export function ModePicker({ onStart }: Props) {
   const [selected, setSelected] = useState<Set<SeriesId>>(
     () => new Set(SERIES.map((s) => s.id)),
   );
+  const [direction, setDirection] = useState<Direction>("name");
   const [mode, setMode] = useState<Mode>("A");
 
   const toggle = (id: SeriesId) => {
@@ -48,7 +52,7 @@ export function ModePicker({ onStart }: Props) {
       <CardHeader>
         <CardTitle className="text-xl">Jo Suburi Flash Cards</CardTitle>
         <CardDescription>
-          Pick which series to drill, then choose a difficulty.
+          Pick which series to drill, the quiz direction, and a difficulty.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
@@ -86,6 +90,33 @@ export function ModePicker({ onStart }: Props) {
         </section>
 
         <section>
+          <h3 className="text-sm font-medium mb-2">Direction</h3>
+          <div
+            role="radiogroup"
+            aria-label="Direction"
+            className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1"
+          >
+            {DIRECTIONS.map((d) => (
+              <button
+                key={d}
+                type="button"
+                role="radio"
+                aria-checked={direction === d}
+                onClick={() => setDirection(d)}
+                className={
+                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors " +
+                  (direction === d
+                    ? "bg-background text-foreground ring-1 ring-foreground/10"
+                    : "text-muted-foreground hover:text-foreground")
+                }
+              >
+                {DIRECTION_LABEL[d]}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section>
           <h3 className="text-sm font-medium mb-2">Mode</h3>
           <RadioGroup
             value={mode}
@@ -103,7 +134,7 @@ export function ModePicker({ onStart }: Props) {
 
         <Button
           size="lg"
-          onClick={() => onStart([...selected], mode)}
+          onClick={() => onStart([...selected], direction, mode)}
           disabled={noneSelected}
           className="w-full"
         >

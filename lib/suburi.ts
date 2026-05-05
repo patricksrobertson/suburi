@@ -56,7 +56,14 @@ export type Mode = "A" | "B" | "C";
 export const MODE_LABEL: Record<Mode, string> = {
   A: "Easy — pick from 3",
   B: "Medium — pick from 10",
-  C: "Hard — type the name",
+  C: "Hard — type the answer",
+};
+
+export type Direction = "name" | "number";
+
+export const DIRECTION_LABEL: Record<Direction, string> = {
+  name: "Number → Name",
+  number: "Name → Number",
 };
 
 export function deckForSelection(selected: readonly SeriesId[]): Suburi[] {

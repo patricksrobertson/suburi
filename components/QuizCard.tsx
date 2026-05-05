@@ -8,8 +8,10 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
+  DIRECTION_LABEL,
   MODE_LABEL,
   describeSelection,
+  type Direction,
   type Mode,
   type SeriesId,
   type Suburi,
@@ -19,6 +21,7 @@ import { TypedAnswer } from "./TypedAnswer";
 
 type Props = {
   selected: SeriesId[];
+  direction: Direction;
   mode: Mode;
   card: Suburi;
   options: readonly Suburi[];
@@ -31,6 +34,7 @@ type Props = {
 
 export function QuizCard({
   selected,
+  direction,
   mode,
   card,
   options,
@@ -40,68 +44,129 @@ export function QuizCard({
   onPick,
   onType,
 }: Props) {
+  const choiceLabel =
+    direction === "name"
+      ? (s: Suburi) => s.nameJa
+      : (s: Suburi) => `${s.numberJa} (${s.number})`;
+
+  const typedPlaceholder =
+    direction === "name"
+      ? "type the japanese name…"
+      : "type the japanese number…";
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center justify-between text-base gap-3">
           <span className="truncate">
-            {describeSelection(selected)} · {MODE_LABEL[mode]}
+            {describeSelection(selected)} · {DIRECTION_LABEL[direction]} ·{" "}
+            {MODE_LABEL[mode]}
           </span>
           <span className="text-sm font-normal text-muted-foreground shrink-0">
             {index + 1} / {total} · {score} ✓
           </span>
         </CardTitle>
-        <CardDescription>{prompt(mode)}</CardDescription>
+        <CardDescription>{prompt(direction, mode)}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <PromptDisplay mode={mode} card={card} />
+        <PromptDisplay direction={direction} mode={mode} card={card} />
         {mode === "C" ? (
-          <TypedAnswer key={card.number} onSubmit={onType} />
+          <TypedAnswer
+            key={card.number}
+            placeholder={typedPlaceholder}
+            onSubmit={onType}
+          />
         ) : (
-          <ChoiceAnswer options={options} onPick={onPick} />
+          <ChoiceAnswer options={options} label={choiceLabel} onPick={onPick} />
         )}
       </CardContent>
     </Card>
   );
 }
 
-function prompt(mode: Mode): string {
+function prompt(direction: Direction, mode: Mode): string {
+  if (direction === "name") {
+    switch (mode) {
+      case "A":
+        return "Pick the japanese name for this technique.";
+      case "B":
+        return "Pick the japanese name from the list of 10.";
+      case "C":
+        return "Type the japanese name in romaji.";
+    }
+  }
   switch (mode) {
     case "A":
-      return "Pick the japanese name for this technique.";
+      return "Pick the japanese number for this technique.";
     case "B":
-      return "Pick the japanese name from the list of 10.";
+      return "Pick the japanese number from the list of 10.";
     case "C":
-      return "Type the japanese name in romaji.";
+      return "Type the japanese number in romaji.";
   }
 }
 
-function PromptDisplay({ mode, card }: { mode: Mode; card: Suburi }) {
+function PromptDisplay({
+  direction,
+  mode,
+  card,
+}: {
+  direction: Direction;
+  mode: Mode;
+  card: Suburi;
+}) {
+  if (direction === "name") {
+    if (mode === "A") {
+      return (
+        <Frame caption={`number ${card.number}`}>
+          <div className="text-2xl font-medium">{card.nameEn}</div>
+        </Frame>
+      );
+    }
+    if (mode === "B") {
+      return (
+        <Frame caption="number">
+          <div className="text-3xl font-semibold tracking-wide">
+            {card.numberJa} ({card.number})
+          </div>
+        </Frame>
+      );
+    }
+    return (
+      <Frame caption="japanese number">
+        <div className="text-3xl font-semibold tracking-wide">
+          {card.numberJa}
+        </div>
+      </Frame>
+    );
+  }
+
+  // direction === "number"
   if (mode === "A") {
     return (
-      <div className="rounded-lg border border-border bg-muted/40 p-5 text-center">
-        <div className="text-sm text-muted-foreground">number {card.number}</div>
-        <div className="mt-1 text-2xl font-medium">{card.nameEn}</div>
-      </div>
+      <Frame caption={card.nameEn}>
+        <div className="text-2xl font-mono">{card.nameJa}</div>
+      </Frame>
     );
   }
-  if (mode === "B") {
-    return (
-      <div className="rounded-lg border border-border bg-muted/40 p-5 text-center">
-        <div className="text-sm text-muted-foreground">number</div>
-        <div className="mt-1 text-3xl font-semibold tracking-wide">
-          {card.numberJa} ({card.number})
-        </div>
-      </div>
-    );
-  }
-  // C
+  // B and C: name only, no en hint
+  return (
+    <Frame caption="japanese name">
+      <div className="text-2xl font-mono">{card.nameJa}</div>
+    </Frame>
+  );
+}
+
+function Frame({
+  caption,
+  children,
+}: {
+  caption: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="rounded-lg border border-border bg-muted/40 p-5 text-center">
-      <div className="text-sm text-muted-foreground">japanese number</div>
-      <div className="mt-1 text-3xl font-semibold tracking-wide">
-        {card.numberJa}
-      </div>
+      <div className="text-sm text-muted-foreground">{caption}</div>
+      <div className="mt-1">{children}</div>
     </div>
   );
 }

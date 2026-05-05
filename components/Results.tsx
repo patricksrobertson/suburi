@@ -9,14 +9,17 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
+  DIRECTION_LABEL,
   MODE_LABEL,
   describeSelection,
+  type Direction,
   type Mode,
   type SeriesId,
 } from "@/lib/suburi";
 
 type Props = {
   selected: SeriesId[];
+  direction: Direction;
   mode: Mode;
   score: number;
   total: number;
@@ -26,6 +29,7 @@ type Props = {
 
 export function Results({
   selected,
+  direction,
   mode,
   score,
   total,
@@ -38,7 +42,8 @@ export function Results({
       <CardHeader>
         <CardTitle className="text-xl">Deck complete</CardTitle>
         <CardDescription>
-          {describeSelection(selected)} · {MODE_LABEL[mode]}
+          {describeSelection(selected)} · {DIRECTION_LABEL[direction]} ·{" "}
+          {MODE_LABEL[mode]}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
