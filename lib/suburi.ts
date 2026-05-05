@@ -76,6 +76,36 @@ export const DIRECTION_HEADER: Record<Direction, string> = {
   number: "answering number",
 };
 
+// Accepted romaji forms per number. The first entry is the canonical form
+// shown in prompts, dropdowns, and feedback (matches each card's `numberJa`).
+// Subsequent entries are accepted alternates for typed answers.
+const NUMBER_FORMS: Record<number, readonly string[]> = {
+  1: ["ichi"],
+  2: ["ni"],
+  3: ["san"],
+  4: ["shi", "yon", "yo"],
+  5: ["go"],
+  6: ["roku"],
+  7: ["shichi", "nana"],
+  8: ["hachi"],
+  9: ["kyu", "ku"],
+  10: ["ju"],
+  11: ["ju ichi"],
+  12: ["ju ni"],
+  13: ["ju san"],
+  14: ["ju shi", "ju yon"],
+  15: ["ju go"],
+  16: ["ju roku"],
+  17: ["ju shichi", "ju nana"],
+  18: ["ju hachi"],
+  19: ["ju kyu", "ju ku"],
+  20: ["ni ju"],
+};
+
+export function numberFormsFor(n: number): readonly string[] {
+  return NUMBER_FORMS[n] ?? [];
+}
+
 export function deckForSelection(selected: readonly SeriesId[]): Suburi[] {
   const set = new Set(selected);
   return SUBURI.filter((s) => set.has(s.series));
