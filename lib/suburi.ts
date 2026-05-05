@@ -23,7 +23,7 @@ export const SUBURI: readonly Suburi[] = [
   { number: 15, numberJa: "ju go", nameEn: "figure eight turn and thrust", nameJa: "hasso gaeshi tsuki" },
   { number: 16, numberJa: "ju roku", nameEn: "figure eight turn rear thrust", nameJa: "hasso gaeshi ushiro tsuki" },
   { number: 17, numberJa: "ju shichi", nameEn: "figure eight turn rear strike", nameJa: "hasso gaeshi ushiro uchi" },
-  { number: 18, numberJa: "ju hachi", nameEn: "figure eight turn rear sweep", nameJa: "hasso gaeshi ushiro harai" },
+  { number: 18, numberJa: "ju hachi", nameEn: "figure eight turn rear sweep", nameJa: "hasso gaeshi ushiro barai" },
   { number: 19, numberJa: "ju kyu", nameEn: "left turn flowing strike", nameJa: "hidari nagare gaeshi uchi" },
   { number: 20, numberJa: "ni ju", nameEn: "right turn flowing thrust", nameJa: "migi nagare gaeshi tsuki" },
 ] as const;
