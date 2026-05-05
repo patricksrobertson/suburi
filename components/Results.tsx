@@ -9,7 +9,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
-  DIRECTION_LABEL,
+  DIRECTION_HEADER,
   MODE_LABEL,
   describeSelection,
   type Direction,
@@ -42,7 +42,7 @@ export function Results({
       <CardHeader>
         <CardTitle className="text-xl">Deck complete</CardTitle>
         <CardDescription>
-          {describeSelection(selected)} · {DIRECTION_LABEL[direction]} ·{" "}
+          {describeSelection(selected)} · {DIRECTION_HEADER[direction]} ·{" "}
           {MODE_LABEL[mode]}
         </CardDescription>
       </CardHeader>

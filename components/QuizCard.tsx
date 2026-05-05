@@ -8,7 +8,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
-  DIRECTION_LABEL,
+  DIRECTION_HEADER,
   MODE_LABEL,
   describeSelection,
   type Direction,
@@ -59,7 +59,7 @@ export function QuizCard({
       <CardHeader>
         <CardTitle className="flex items-center justify-between text-base gap-3">
           <span className="truncate">
-            {describeSelection(selected)} · {DIRECTION_LABEL[direction]} ·{" "}
+            {describeSelection(selected)} · {DIRECTION_HEADER[direction]} ·{" "}
             {MODE_LABEL[mode]}
           </span>
           <span className="text-sm font-normal text-muted-foreground shrink-0">

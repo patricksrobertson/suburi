@@ -12,6 +12,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
+  DIRECTION_HELP,
   DIRECTION_LABEL,
   MODE_LABEL,
   SERIES,
@@ -52,7 +53,8 @@ export function ModePicker({ onStart }: Props) {
       <CardHeader>
         <CardTitle className="text-xl">Jo Suburi Flash Cards</CardTitle>
         <CardDescription>
-          Pick which series to drill, the quiz direction, and a difficulty.
+          Pick which series to drill, what you&apos;re answering, and a
+          difficulty.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
@@ -90,10 +92,10 @@ export function ModePicker({ onStart }: Props) {
         </section>
 
         <section>
-          <h3 className="text-sm font-medium mb-2">Direction</h3>
+          <h3 className="text-sm font-medium mb-2">Answering</h3>
           <div
             role="radiogroup"
-            aria-label="Direction"
+            aria-label="Answering"
             className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1"
           >
             {DIRECTIONS.map((d) => (
@@ -114,6 +116,9 @@ export function ModePicker({ onStart }: Props) {
               </button>
             ))}
           </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {DIRECTION_HELP[direction]}
+          </p>
         </section>
 
         <section>

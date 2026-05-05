@@ -62,8 +62,18 @@ export const MODE_LABEL: Record<Mode, string> = {
 export type Direction = "name" | "number";
 
 export const DIRECTION_LABEL: Record<Direction, string> = {
-  name: "Number → Name",
-  number: "Name → Number",
+  name: "Name",
+  number: "Number",
+};
+
+export const DIRECTION_HELP: Record<Direction, string> = {
+  name: "Guess the correct technique name.",
+  number: "Guess the correct technique number.",
+};
+
+export const DIRECTION_HEADER: Record<Direction, string> = {
+  name: "answering name",
+  number: "answering number",
 };
 
 export function deckForSelection(selected: readonly SeriesId[]): Suburi[] {
