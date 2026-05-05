@@ -7,6 +7,7 @@ import { Results } from "@/components/Results";
 import {
   SUBURI,
   deckForSelection,
+  numberFormsFor,
   type Direction,
   type Mode,
   type SeriesId,
@@ -115,9 +116,13 @@ function Playing({
   };
 
   const judgeTyped = (typed: string) => {
-    const target =
-      state.direction === "name" ? card.nameJa : card.numberJa;
-    judge(answersMatch(typed, target), typed);
+    const correct =
+      state.direction === "name"
+        ? answersMatch(typed, card.nameJa)
+        : numberFormsFor(card.number).some((form) =>
+            answersMatch(typed, form),
+          );
+    judge(correct, typed);
   };
 
   const judgePicked = (picked: Suburi) => {
