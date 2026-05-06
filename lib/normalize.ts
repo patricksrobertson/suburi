@@ -3,9 +3,7 @@ export function normalize(s: string): string {
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
     .toLowerCase()
-    .replace(/[-_]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+    .replace(/[\s\-_]+/g, "");
 }
 
 export function answersMatch(typed: string, canonical: string): boolean {

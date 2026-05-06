@@ -254,7 +254,7 @@ function Playing({
         answersMatch(typed, form),
       );
     } else {
-      correct = typed.trim() === String(card.number);
+      correct = answersMatch(typed, String(card.number));
     }
     judge(correct, typed);
   };
