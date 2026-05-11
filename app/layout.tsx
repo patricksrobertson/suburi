@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,6 +30,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {children}
+        <Analytics />
         <footer className="border-t border-border/60 px-4 py-6 sm:py-8">
           <p className="mx-auto max-w-2xl text-center text-xs leading-relaxed text-muted-foreground">
             Getting value from the quizzes?{" "}
